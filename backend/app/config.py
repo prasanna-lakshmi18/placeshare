@@ -2,6 +2,9 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 
+from pydantic import field_validator
+
+
 class Settings(BaseSettings):
     """Application configuration via environment variables."""
 
@@ -11,6 +14,13 @@ class Settings(BaseSettings):
 
     # Database — SQLite for local dev, PostgreSQL for Docker
     DATABASE_URL: str = "sqlite:///./placement.db"
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_db_url(cls, v: str) -> str:
+        if isinstance(v, str) and v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql://", 1)
+        return v
 
     # JWT
     SECRET_KEY: str = "super-secret-dev-key-change-in-production-2024"

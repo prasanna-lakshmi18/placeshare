@@ -5,16 +5,16 @@ zerops:
       buildCommands:
         - cd backend && pip install --target=./vendor -r requirements.txt
       deployFiles:
-        - backend
+        - backend/~
     run:
       base: python@3.12
       envVariables:
-        PYTHONPATH: /var/www/backend:/var/www/backend/vendor
+        PYTHONPATH: /var/www:/var/www/vendor
         PYTHONUNBUFFERED: "1"
         DEBUG: "False"
       initCommands:
-        - cd backend && python -m alembic upgrade head
-      start: cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+        - python -m alembic upgrade head
+      start: python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
       ports:
         - port: 8000
           httpSupport: true

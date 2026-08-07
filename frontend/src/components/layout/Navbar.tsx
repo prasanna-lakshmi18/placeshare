@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GraduationCap, LogIn, LogOut, Plus, UserCircle, ShieldAlert } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { ThemeToggle } from '../ui/ThemeToggle';
 
@@ -18,7 +18,7 @@ export function Navbar({ onCreateClick, onLoginClick }: NavbarProps) {
   const handleResend = async () => {
     try {
       setResending(true);
-      await axios.post('/api/auth/request-verification');
+      await api.post('/auth/request-verification');
       setResent(true);
       setTimeout(() => setResent(false), 5000);
     } catch (err) {

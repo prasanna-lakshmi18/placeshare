@@ -1,7 +1,6 @@
 import { MessageSquare, ArrowRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { UserComment } from '../../types';
-import { Link } from 'react-router-dom';
 
 interface ProfileCommentCardProps {
   comment: UserComment;

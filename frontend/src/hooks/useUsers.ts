@@ -1,6 +1,6 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import api from '../api/client';
-import type { ExperienceListResponse, User } from '../types';
+import type { ExperienceListResponse, User, UserCommentListResponse } from '../types';
 
 export function useUserProfile(userId: number) {
   return useQuery<User>({

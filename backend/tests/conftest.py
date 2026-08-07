@@ -33,7 +33,7 @@ def client(db):
             pass
 
     app.dependency_overrides[get_db] = override_get_db
-    yield TestClient(app)
+    yield TestClient(app, base_url="https://testserver")
     del app.dependency_overrides[get_db]
 
 @pytest.fixture(scope="module")

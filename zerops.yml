@@ -3,14 +3,14 @@ zerops:
     build:
       base: python@3.12
       buildCommands:
-        - cd backend && pip install -r requirements.txt
+        - cd backend && python -m venv venv && ./venv/bin/pip install --upgrade pip && ./venv/bin/pip install -r requirements.txt
       deployFiles:
         - backend
     run:
       base: python@3.12
       initCommands:
-        - cd backend && alembic upgrade head
-      start: cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000
+        - cd backend && ./venv/bin/alembic upgrade head
+      start: cd backend && ./venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
       envVariables:
         PYTHONUNBUFFERED: 1
         DEBUG: "False"

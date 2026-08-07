@@ -29,12 +29,23 @@ const queryClient = new QueryClient({
 });
 
 function AppContent() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [showCreate, setShowCreate] = useState(false);
   const [authModal, setAuthModal] = useState<'login' | 'register' | null>(null);
   const [filters, setFilters] = useState<FilterType>({});
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Loading PlaceShare...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>

@@ -10,7 +10,6 @@ zerops:
       base: python@3.12
       envVariables:
         PYTHONPATH: /var/www/backend:/var/www/backend/vendor
-        PATH: /var/www/backend/vendor/bin:$PATH
         PYTHONUNBUFFERED: 1
         DEBUG: "False"
       initCommands:

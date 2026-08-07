@@ -1,5 +1,5 @@
 zerops:
-  - setup: placeshare-backend
+  - setup: backend
     build:
       base: python@3.12
       buildCommands:
@@ -15,7 +15,7 @@ zerops:
         PYTHONUNBUFFERED: 1
         DEBUG: "False"
 
-  - setup: placeshare-frontend
+  - setup: frontend
     build:
       base: nodejs@20
       buildCommands:

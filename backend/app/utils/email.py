@@ -46,9 +46,8 @@ async def send_email(to_email: str, subject: str, body_text: str, body_html: str
 
 async def send_verification_email(to_email: str, token: str):
     subject = "Verify your PlaceShare account"
-    # In a real app, this would be a URL pointing to the frontend
-    # For now, we'll use a placeholder that the user should update
-    verify_url = f"http://localhost:5173/verify-email?token={token}"
+    frontend_base = settings.FRONTEND_URL.rstrip('/')
+    verify_url = f"{frontend_base}/verify-email?token={token}"
     
     body_text = f"Welcome to PlaceShare!\n\nPlease click the link below to verify your account:\n\n{verify_url}\n\nThis link expires in 24 hours."
     
@@ -71,7 +70,8 @@ async def send_verification_email(to_email: str, token: str):
 
 async def send_password_reset_email(to_email: str, token: str):
     subject = "Reset your PlaceShare password"
-    reset_url = f"http://localhost:5173/reset-password?token={token}"
+    frontend_base = settings.FRONTEND_URL.rstrip('/')
+    reset_url = f"{frontend_base}/reset-password?token={token}"
     
     body_text = f"Reset your password\n\nPlease click the link below to reset your password:\n\n{reset_url}\n\nThis link expires in 1 hour."
     

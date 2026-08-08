@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
     MAIL_FROM: str = "noreply@placeshare.com"
+    FRONTEND_URL: str = "https://frontend-2a96.prg1.zerops.app"
 
     class Config:
         env_file = ".env"

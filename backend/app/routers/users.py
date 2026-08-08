@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc
 from app.database import get_db
 from app.models import User, Experience
-from app.schemas.experience import ExperienceListResponse, AuthorResponse
+from app.schemas.experience import ExperienceListResponse, AuthorResponse, UserProfileResponse
 from app.schemas.comment import UserCommentResponse, UserCommentListResponse
 from app.routers.experiences import _build_response, FEED_PAGE_SIZE
 from app.utils.pagination import encode_cursor, decode_cursor
@@ -11,14 +11,14 @@ from app.utils.security import get_optional_user
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
-@router.get("/{user_id}", response_model=AuthorResponse)
+@router.get("/{user_id}", response_model=UserProfileResponse)
 def get_user_profile(user_id: int, db: Session = Depends(get_db)):
     """Get a user's public profile data."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    return AuthorResponse.model_validate(user)
+    return UserProfileResponse.model_validate(user)
 
 @router.get("/{user_id}/experiences", response_model=ExperienceListResponse)
 def get_user_experiences(

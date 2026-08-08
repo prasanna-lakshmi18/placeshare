@@ -26,6 +26,17 @@ class AuthorResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class UserProfileResponse(BaseModel):
+    id: int
+    username: str
+    email: str | None = None
+    avatar_url: str | None = None
+    is_verified: bool = False
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class ExperienceResponse(BaseModel):
     id: int
     company: str

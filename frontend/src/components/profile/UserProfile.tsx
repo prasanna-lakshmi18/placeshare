@@ -4,7 +4,7 @@ import { useUserProfile, useUserExperiences, useUserComments, useUserLikes } fro
 import { ExperienceCard } from '../experience/ExperienceCard';
 import { ProfileCommentCard } from './ProfileCommentCard';
 import { ExperienceCardSkeleton } from '../ui/SkeletonLoader';
-import { User, Mail, Calendar, ArrowLeft, PenTool, MessageSquare, Heart } from 'lucide-react';
+import { User, Mail, Calendar, ArrowLeft, PenTool, MessageSquare, Heart, CheckCircle2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 type TabType = 'posts' | 'comments' | 'likes';
@@ -67,6 +67,14 @@ export function UserProfile() {
   const userComms = comments?.pages.flatMap((page) => page.items) ?? [];
   const userLks = likes?.pages.flatMap((page) => page.items) ?? [];
 
+  const joinDate = user.created_at ? (() => {
+    try {
+      return `Joined ${formatDistanceToNow(new Date(user.created_at))} ago`;
+    } catch {
+      return 'Joined recently';
+    }
+  })() : 'Joined recently';
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <Link to="/" className="inline-flex items-center gap-2 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-medium mb-6 transition-colors">
@@ -84,10 +92,17 @@ export function UserProfile() {
           )}
         </div>
         <div className="text-center md:text-left flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{user.username}</h1>
+          <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:white">{user.username}</h1>
+            {user.is_verified && (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20">
+                <CheckCircle2 size={13} /> Verified Student
+              </span>
+            )}
+          </div>
           <div className="flex flex-col md:flex-row gap-3 md:gap-6 text-gray-500 dark:text-gray-400 items-center md:items-start text-sm">
-            <span className="flex items-center gap-1.5"><Mail size={16} /> {user.email}</span>
-            <span className="flex items-center gap-1.5"><Calendar size={16} /> Joined {formatDistanceToNow(new Date(user.created_at))} ago</span>
+            {user.email && <span className="flex items-center gap-1.5"><Mail size={16} /> {user.email}</span>}
+            <span className="flex items-center gap-1.5"><Calendar size={16} /> {joinDate}</span>
           </div>
         </div>
       </div>

@@ -7,6 +7,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useCreateComment, useUpdateComment, useDeleteComment } from '../../hooks/useComments';
 import { cn } from '../ui/ThemeToggle';
 
+import { Link } from 'react-router-dom';
+
 interface CommentItemProps {
   comment: Comment;
   experienceId: number;
@@ -60,19 +62,23 @@ export function CommentItem({ comment, experienceId, depth = 0 }: CommentItemPro
 
       {/* Avatar */}
       <div className="shrink-0 z-10">
-        {comment.author.avatar_url ? (
-          <img src={comment.author.avatar_url} alt="" className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700" />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-600 dark:bg-brand-900/50 dark:text-brand-300 flex items-center justify-center font-semibold text-xs border border-brand-200 dark:border-brand-800">
-            {comment.author.username[0].toUpperCase()}
-          </div>
-        )}
+        <Link to={`/profile/${comment.author.id}`} className="block transition-transform hover:scale-105">
+          {comment.author.avatar_url ? (
+            <img src={comment.author.avatar_url} alt="" className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-600 dark:bg-brand-900/50 dark:text-brand-300 flex items-center justify-center font-semibold text-xs border border-brand-200 dark:border-brand-800">
+              {comment.author.username ? comment.author.username[0].toUpperCase() : 'U'}
+            </div>
+          )}
+        </Link>
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">{comment.author.username}</span>
+          <Link to={`/profile/${comment.author.id}`} className="font-semibold text-sm text-gray-900 dark:text-gray-100 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+            {comment.author.username}
+          </Link>
           <span className="text-[11px] text-gray-500 dark:text-gray-400">{timeAgo}</span>
           {comment.is_edited && <EditedLabel />}
         </div>

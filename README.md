@@ -1,87 +1,164 @@
 # PlaceShare — Placement Experience Platform
 
-A high-performance full-stack web application designed for university students to share, discover, and discuss placement and interview experiences.
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Zerops](https://img.shields.io/badge/Deployed_on-Zerops-00E599?style=for-the-badge)](https://zerops.io)
 
-## 🚀 Features
+> A modern, high-performance web platform designed for university students to share, discover, and discuss real-world interview questions, preparation tips, and placement experiences.
 
-*   **Experience Feed:** Browse through interview experiences shared by peers with infinite scrolling and filtering options.
-*   **Instagram-style Nested Comments:** Engage in deep discussions with a recursive, infinitely nested comment thread system.
-*   **Optimistic UI:** Instantaneous feedback when liking posts or adding comments for a seamless user experience.
-*   **Rich Profiles:** User authentication with JWT-based secure HTTP-only cookies.
-*   **Dark/Light Mode:** First-class support for theming.
-*   **Cursor-based Pagination:** Efficient data loading for feeds that scale to thousands of entries.
+---
+
+## 🌟 Key Features
+
+- 🎯 **Experience Feed & Filters**: Search and filter placement reviews by company name, role, difficulty rating, and selection outcome.
+- 💬 **Instagram-Style Nested Commenting**: Self-referential comment threads with infinite recursive replies, built on an $O(1)$ single-query flat loading + $O(n)$ in-memory tree builder to prevent $N+1$ database bottlenecks.
+- ⚡ **Optimistic UI Updates**: Immediate client feedback on likes and comments powered by TanStack Query (React Query).
+- 📜 **Cursor-Based Pagination**: Resilient, high-performance feed pagination that stays fast with thousands of posts.
+- 🎓 **Student Verification**: Email verification flow with custom token lifecycle and verified badges.
+- 🌓 **Dynamic Dark / Light Mode**: Integrated Tailwind theming with system preference sync.
+- 👤 **Interactive User Profiles**: Dedicated profile hubs showcasing authored posts, comments, liked posts, and verification status.
+
+---
+
+## 🏗️ Architecture & System Design
+
+```mermaid
+graph TD
+    Client[React + TypeScript SPA] -->|REST API / JSON| Gateway[FastAPI Backend Server]
+    Client -->|Static Assets| Nginx[Nginx / Static CDN]
+    Gateway -->|ORM / Migrations| Postgres[(PostgreSQL / SQLite)]
+    Gateway -->|Async Tasks| SMTP[Google SMTP / Mail Gateway]
+    Gateway -->|TTL Cache| Cache[In-Memory Cache]
+```
+
+### Comment System Architecture
+Instead of recursive SQL queries that trigger exponential database requests, PlaceShare uses a **flat-load & tree-build algorithm**:
+1. All comments for an experience are fetched in a single indexed query (`SELECT * FROM comments WHERE experience_id = :id ORDER BY created_at ASC`).
+2. The backend constructs a nested hierarchy in memory in $O(n)$ time using an adjacency dictionary.
+3. The React frontend recursively renders the tree using `<CommentItem />`.
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-*   **Framework:** React 19 (via Vite) + TypeScript
-*   **State Management:** TanStack Query (React Query) for server state and optimistic updates
-*   **Styling:** Vanilla CSS (with modern variables and dark mode support) + Tailwind CSS (configured)
-*   **Icons:** Lucide React
+- **Framework**: React 19 + Vite + TypeScript
+- **Data Fetching & State**: TanStack Query v5 (React Query)
+- **Routing**: React Router DOM v7
+- **Styling**: Tailwind CSS + Lucide Icons + `date-fns`
 
 ### Backend
-*   **Framework:** FastAPI (Python)
-*   **Database:** SQLite (Local Dev) / PostgreSQL (Production ready)
-*   **ORM:** SQLAlchemy 2.0 with Alembic for migrations
-*   **Validation:** Pydantic v2
-*   **Auth:** JWT (JSON Web Tokens) with secure HTTP-only cookies and bcrypt password hashing
-*   **Caching:** In-memory TTL cache for hot data (extensible to Redis)
+- **Framework**: FastAPI (Python 3.12)
+- **ORM & Migrations**: SQLAlchemy 2.0 + Alembic
+- **Validation**: Pydantic v2
+- **Auth**: JWT (Stateless Bearer & HTTP-only Cookies) with Argon2/Bcrypt password hashing
+- **Mailing**: Asynchronous SMTP Client with TLS/SSL support
 
-## 🏗️ Architecture
+---
 
-The backend utilizes a **flat-load + tree-build strategy** for the nested comment system. Instead of suffering from the N+1 query problem commonly associated with recursive data structures, the FastAPI backend fetches all comments for a given experience in a single O(1) query and reconstructs the tree in memory (O(n) time complexity) before returning it to the React frontend. 
+## 📁 Repository Structure
 
-The frontend uses a recursive component (`CommentItem`) to render this tree natively, supporting infinite visual nesting levels.
+```text
+placeshare/
+├── .github/workflows/         # CI / CD automation pipelines
+├── backend/                   # FastAPI application
+│   ├── alembic/               # Database schema migrations
+│   ├── app/
+│   │   ├── models/            # SQLAlchemy database models
+│   │   ├── routers/           # REST API route handlers
+│   │   ├── schemas/           # Pydantic data validation schemas
+│   │   ├── services/          # Business logic & caching
+│   │   └── utils/             # Security, email & pagination utilities
+│   ├── tests/                 # Pytest test suite
+│   ├── Dockerfile             # Backend container image
+│   └── requirements.txt       # Python dependencies
+├── frontend/                  # React Vite SPA
+│   ├── src/
+│   │   ├── api/               # Axios API client & interceptors
+│   │   ├── components/        # UI components (Feed, Comments, Profiles)
+│   │   ├── context/           # Auth & Theme state contexts
+│   │   └── hooks/             # Custom React Query mutation hooks
+│   ├── Dockerfile             # Multi-stage production Nginx build
+│   └── package.json           # Frontend dependencies
+├── docker-compose.yml         # Local full-stack orchestration
+└── zerops.yaml                # Production deployment configuration
+```
 
-## 💻 Getting Started (Local Development)
+---
 
-Follow these steps to run the application locally.
+## 🚀 Quick Start
 
-### Prerequisites
-*   Python 3.12+
-*   Node.js 20+
+### Option 1: Docker Compose (Recommended)
 
-### 1. Backend Setup
+Run the entire stack with a single command:
 
-Open a terminal in the `backend` directory:
+```bash
+docker compose up --build
+```
 
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:8000`
+- **Interactive Swagger Docs**: `http://localhost:8000/docs`
+
+---
+
+### Option 2: Local Development Setup
+
+#### 1. Backend Setup
 ```bash
 cd backend
-
-# Create a virtual environment
 python -m venv venv
 
-# Activate the virtual environment
-# On Windows:
+# Windows:
 venv\Scripts\activate
-# On macOS/Linux:
+# macOS/Linux:
 source venv/bin/activate
 
-# Install dependencies
 pip install -r requirements.txt
-
-# Run the FastAPI server (starts on http://localhost:8000)
-uvicorn app.main:app --reload
+python -m alembic upgrade head
+python -m uvicorn app.main:app --reload --port 8000
 ```
-*Note: The SQLite database (`placement.db`) will be created automatically on the first run.*
-*API Documentation (Swagger UI) will be available at `http://localhost:8000/docs`.*
 
-### 2. Frontend Setup
-
-Open a new terminal in the `frontend` directory:
-
+#### 2. Frontend Setup
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start the Vite development server (starts on http://localhost:5173)
 npm run dev
 ```
 
-The frontend proxy is already configured in `vite.config.ts` to forward API requests from `/api` to the FastAPI backend running on port 8000.
+---
 
-## 📝 Next Steps
-- Implement frontend UI styling for the newly created components (`index.css` needs to be fleshed out with the specific class names used).
-- Set up Docker and `docker-compose.yml` for containerized production deployment.
+## ⚙️ Environment Variables
+
+Configure the following variables in your environment or deployment platform (e.g. Zerops):
+
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | PostgreSQL or SQLite database connection string | `postgresql://user:pass@host:5432/db` |
+| `SECRET_KEY` | JWT signing key | `your-secure-random-jwt-secret` |
+| `FRONTEND_URL` | Base URL of the live frontend | `https://frontend-2a96.prg1.zerops.app` |
+| `SMTP_HOST` | Outgoing SMTP server | `smtp.gmail.com` |
+| `SMTP_PORT` | SMTP port (`587` for STARTTLS, `465` for SSL) | `587` |
+| `SMTP_USER` | SMTP username / sender address | `placeshareaits@gmail.com` |
+| `SMTP_PASSWORD` | SMTP password or Google App Password | `your-16-char-app-password` |
+| `MAIL_FROM` | Visible sender address in emails | `placeshareaits@gmail.com` |
+
+---
+
+## 🧪 Testing
+
+Run backend tests using `pytest`:
+
+```bash
+cd backend
+pytest -v
+```
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).

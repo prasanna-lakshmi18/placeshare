@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../api/client';
 import type { Comment, CommentForm } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 export function useComments(experienceId: number) {
   return useQuery<Comment[]>({
@@ -14,6 +15,8 @@ export function useComments(experienceId: number) {
 
 export function useCreateComment(experienceId: number) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   return useMutation({
     mutationFn: async (data: CommentForm) => {
       const res = await api.post(`/experiences/${experienceId}/comments`, data);
@@ -28,7 +31,11 @@ export function useCreateComment(experienceId: number) {
         id: Date.now(), // temp id
         content: newComment.content,
         is_edited: false,
-        author: { id: 0, username: '...', avatar_url: null },
+        author: {
+          id: user?.id ?? 0,
+          username: user?.username ?? 'Anonymous',
+          avatar_url: user?.avatar_url ?? null,
+        },
         parent_id: newComment.parent_id ?? null,
         experience_id: experienceId,
         created_at: new Date().toISOString(),

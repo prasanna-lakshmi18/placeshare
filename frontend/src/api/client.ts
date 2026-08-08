@@ -8,6 +8,15 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+// Request interceptor — attach Bearer token if available in localStorage
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token && !config.headers.Authorization) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Response interceptor — auto-refresh on 401
 let isRefreshing = false;
 let failedQueue: Array<{ resolve: (v: unknown) => void; reject: (e: unknown) => void }> = [];

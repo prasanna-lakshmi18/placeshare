@@ -35,24 +35,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Listen for forced logout from interceptor
   useEffect(() => {
-    const handler = () => setUser(null);
+    const handler = () => {
+      localStorage.removeItem('access_token');
+      setUser(null);
+    };
     window.addEventListener('auth:logout', handler);
     return () => window.removeEventListener('auth:logout', handler);
   }, []);
 
   const login = async (data: LoginForm) => {
     const res = await api.post('/auth/login', data);
+    if (res.data.access_token) {
+      localStorage.setItem('access_token', res.data.access_token);
+    }
     setUser(res.data);
   };
 
   const register = async (data: RegisterForm) => {
     const res = await api.post('/auth/register', data);
+    if (res.data.access_token) {
+      localStorage.setItem('access_token', res.data.access_token);
+    }
     setUser(res.data);
   };
 
   const logout = async () => {
-    await api.post('/auth/logout');
-    setUser(null);
+    try {
+      await api.post('/auth/logout');
+    } finally {
+      localStorage.removeItem('access_token');
+      setUser(null);
+    }
   };
 
   const requestVerification = async () => {

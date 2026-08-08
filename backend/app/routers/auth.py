@@ -33,7 +33,15 @@ def register(user_data: UserCreate, response: Response, db: Session = Depends(ge
     refresh_token = create_token({"sub": str(user.id)}, "refresh")
     set_auth_cookies(response, access_token, refresh_token)
 
-    return user
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        avatar_url=user.avatar_url,
+        is_verified=user.is_verified,
+        created_at=user.created_at,
+        access_token=access_token,
+    )
 
 
 @router.post("/login", response_model=UserResponse)
@@ -47,7 +55,15 @@ def login(credentials: UserLogin, response: Response, db: Session = Depends(get_
     refresh_token = create_token({"sub": str(user.id)}, "refresh")
     set_auth_cookies(response, access_token, refresh_token)
 
-    return user
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        avatar_url=user.avatar_url,
+        is_verified=user.is_verified,
+        created_at=user.created_at,
+        access_token=access_token,
+    )
 
 
 @router.post("/logout")

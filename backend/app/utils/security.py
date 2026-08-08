@@ -111,23 +111,20 @@ def get_optional_user(
 
 def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
     """Set JWT tokens in HTTP-only secure cookies."""
-    secure_cookie = not settings.DEBUG
-    samesite_policy = "none" if not settings.DEBUG else "lax"
-
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=secure_cookie,
-        samesite=samesite_policy,
+        secure=True,
+        samesite="none",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=secure_cookie,
-        samesite=samesite_policy,
+        secure=True,
+        samesite="none",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
     )
 

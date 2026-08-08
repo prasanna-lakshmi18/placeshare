@@ -20,6 +20,7 @@ class UserResponse(BaseModel):
     avatar_url: str | None = None
     is_verified: bool = False
     created_at: datetime
+    access_token: str | None = None
 
     model_config = {"from_attributes": True}
 

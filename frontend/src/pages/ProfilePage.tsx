@@ -1,24 +1,13 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { Layout } from '../components/layout/Layout';
-import { LandingPage } from '../components/layout/LandingPage';
 import { UserProfile } from '../components/profile/UserProfile';
 
 interface ProfilePageProps {
   onOpenAuthModal: (mode: 'login' | 'register') => void;
 }
 
-export function ProfilePage({ onOpenAuthModal }: ProfilePageProps) {
-  const { isAuthenticated } = useAuth();
-  const [activeFilter, setActiveFilter] = useState('all');
-
-  if (!isAuthenticated) {
-    return <LandingPage onRegisterClick={() => onOpenAuthModal('register')} />;
-  }
-
+export function ProfilePage({ onOpenAuthModal: _onOpenAuthModal }: ProfilePageProps) {
   return (
-    <Layout activeFilter={activeFilter} onFilterChange={setActiveFilter}>
+    <main className="min-h-[calc(100vh-4rem)] bg-gray-50/50 dark:bg-gray-950 transition-colors duration-300">
       <UserProfile />
-    </Layout>
+    </main>
   );
 }

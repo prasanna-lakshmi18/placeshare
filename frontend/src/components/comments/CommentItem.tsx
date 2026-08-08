@@ -144,7 +144,8 @@ export function CommentItem({ comment, experienceId, depth = 0 }: CommentItemPro
           <div className="mt-3 mb-2">
             <CommentForm
               onSubmit={handleReply}
-              placeholder={`Reply to ${comment.author.username}...`}
+              placeholder={`Reply to @${comment.author.username}...`}
+              isReply
               autoFocus
               onCancel={() => setShowReply(false)}
             />

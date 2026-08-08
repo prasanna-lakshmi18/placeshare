@@ -18,7 +18,7 @@ export function CommentThread({ experienceId }: CommentThreadProps) {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <CommentForm onSubmit={handleCreate} placeholder="Add a comment..." />
+        <CommentForm onSubmit={handleCreate} />
       </div>
 
       {isLoading && (

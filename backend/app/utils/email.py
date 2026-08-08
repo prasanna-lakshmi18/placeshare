@@ -12,12 +12,9 @@ async def send_email(to_email: str, subject: str, body_text: str, body_html: str
     Sends an email using SMTP. Falls back to logging if SMTP is not configured.
     """
     if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-        logger.warning("SMTP credentials not configured. Logging email instead of sending.")
-        logger.info("========== MOCK EMAIL SENT ==========")
-        logger.info("TO: %s", to_email)
-        logger.info("SUBJECT: %s", subject)
-        logger.info("BODY:\n%s", body_text)
-        logger.info("=====================================")
+        logger.warning("SMTP credentials not configured. Skipping email dispatch.")
+        if settings.DEBUG:
+            logger.debug("Development Mock Email - TO: %s | SUBJECT: %s", to_email, subject)
         return
 
     try:

@@ -23,16 +23,19 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown events."""
-    logger.info(f"🚀 Starting {settings.APP_NAME}")
-    logger.info(f"📦 Database: {settings.DATABASE_URL}")
+    logger.info(f"Starting {settings.APP_NAME}")
+    
+    # Safe database dialect logging without exposing credentials
+    db_type = "PostgreSQL" if "postgres" in settings.DATABASE_URL else "SQLite"
+    logger.info(f"Database driver: {db_type}")
 
-    # Create all tables (for dev — use Alembic migrations in production)
+    # Create all tables (for dev / auto-init)
     Base.metadata.create_all(bind=engine)
-    logger.info("✅ Database tables created")
+    logger.info("Database tables initialized successfully")
 
     yield
 
-    logger.info("👋 Shutting down")
+    logger.info("Application shutdown complete")
 
 
 app = FastAPI(

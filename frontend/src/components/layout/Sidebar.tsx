@@ -1,4 +1,4 @@
-import { TrendingUp, Clock, Award, BarChart3, Lightbulb } from 'lucide-react';
+import { TrendingUp, Clock, Award, BarChart3, Lightbulb, Info } from 'lucide-react';
 import { cn } from '../ui/ThemeToggle';
 
 interface SidebarProps {
@@ -54,9 +54,10 @@ export function Sidebar({ activeFilter, onFilterChange }: SidebarProps) {
             </div>
           </div>
           <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl p-4 transition-colors duration-300">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              🎯 Include company name, role, and difficulty to make your post more helpful.
-            </p>
+            <div className="flex items-start gap-2 text-blue-800 dark:text-blue-200">
+              <Info size={18} className="shrink-0 mt-0.5" />
+              <p className="text-sm">Include company name, role, and difficulty to make your post more helpful.</p>
+            </div>
           </div>
         </div>
       </div>

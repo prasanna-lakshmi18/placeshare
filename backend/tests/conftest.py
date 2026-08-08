@@ -41,7 +41,7 @@ def test_user(db):
     user = User(
         username="testuser",
         email="test@example.com",
-        hashed_password=hash_password("testpassword123"),
+        hashed_password=hash_password("StrongPass123"),
         is_verified=True
     )
     db.add(user)

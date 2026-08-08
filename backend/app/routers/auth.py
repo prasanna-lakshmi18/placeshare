@@ -11,6 +11,7 @@ from app.utils.security import (
     get_current_user, set_auth_cookies, clear_auth_cookies,
 )
 from app.utils.email import send_verification_email, send_password_reset_email
+from app.utils.rate_limiter import login_rate_limiter
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
@@ -63,11 +64,40 @@ def register(
 
 
 @router.post("/login", response_model=UserResponse)
-def login(credentials: UserLogin, response: Response, db: Session = Depends(get_db)):
-    """Authenticate user and issue JWT tokens."""
+def login(
+    credentials: UserLogin,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db)
+):
+    """Authenticate user with brute-force lockout protection and issue JWT tokens."""
+    limiter_key = login_rate_limiter.get_key(request, credentials.email)
+
+    # 1. Check if account/IP is locked out
+    is_locked, remaining_seconds = login_rate_limiter.check_lockout(limiter_key)
+    if is_locked:
+        remaining_minutes = (remaining_seconds + 59) // 60
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Too many failed login attempts. Account temporarily locked. Please try again in {remaining_minutes} minute{'s' if remaining_minutes != 1 else ''} or reset your password.",
+        )
+
+    # 2. Verify user credentials
     user = db.query(User).filter(User.email == credentials.email).first()
     if not user or not verify_password(credentials.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+        _, remaining, is_now_locked = login_rate_limiter.record_failure(limiter_key)
+        if is_now_locked:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Too many failed login attempts (5/5). Account temporarily locked for 15 minutes to protect against brute-force attacks. Try again later or reset your password.",
+            )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid email or password. {remaining} attempt{'s' if remaining != 1 else ''} remaining before temporary lockout.",
+        )
+
+    # 3. Successful login: reset failed attempts counter
+    login_rate_limiter.reset_attempts(limiter_key)
 
     access_token = create_token({"sub": str(user.id)}, "access")
     refresh_token = create_token({"sub": str(user.id)}, "refresh")

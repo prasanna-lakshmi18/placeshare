@@ -35,15 +35,18 @@ async def send_email(to_email: str, subject: str, body_text: str, body_html: str
             part2 = MIMEText(body_html, "html")
             message.attach(part2)
 
+        smtp_user = (settings.SMTP_USER or "").strip()
+        smtp_pass = (settings.SMTP_PASSWORD or "").replace(" ", "").strip()
+
         # Connect via SSL if port 465, otherwise STARTTLS
         if settings.SMTP_PORT == 465:
             with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as server:
-                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                server.login(smtp_user, smtp_pass)
                 server.sendmail(from_addr, to_email, message.as_string())
         else:
             with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as server:
                 server.starttls()
-                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                server.login(smtp_user, smtp_pass)
                 server.sendmail(from_addr, to_email, message.as_string())
         
         logger.info("Email '%s' sent successfully to %s", subject, to_email)

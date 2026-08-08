@@ -1,18 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, BackgroundTasks
 from sqlalchemy.orm import Session
+import secrets
+from datetime import timedelta, datetime, timezone
 from app.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserLogin, UserResponse
+from app.models.token import AccountToken
+from app.schemas.user import UserCreate, UserLogin, UserResponse, EmailRequest, PasswordReset
 from app.utils.security import (
     hash_password, verify_password, create_token, decode_token,
     get_current_user, set_auth_cookies, clear_auth_cookies,
 )
+from app.utils.email import send_verification_email, send_password_reset_email
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(user_data: UserCreate, response: Response, db: Session = Depends(get_db)):
+def register(
+    user_data: UserCreate,
+    response: Response,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
     """Register a new user account."""
     if db.query(User).filter(User.username == user_data.username).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already taken")
@@ -28,6 +37,15 @@ def register(user_data: UserCreate, response: Response, db: Session = Depends(ge
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    # Generate verification token and dispatch email in background
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+    db_token = AccountToken(user_id=user.id, token=token, purpose="verify_email", expires_at=expires_at)
+    db.add(db_token)
+    db.commit()
+
+    background_tasks.add_task(send_verification_email, user.email, token)
 
     access_token = create_token({"sub": str(user.id)}, "access")
     refresh_token = create_token({"sub": str(user.id)}, "refresh")
@@ -101,11 +119,6 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
 
     return {"message": "Tokens refreshed"}
 
-import secrets
-from datetime import timedelta, datetime, timezone
-from app.models.token import AccountToken
-from app.schemas.user import EmailRequest, PasswordReset
-from app.utils.email import send_verification_email, send_password_reset_email
 
 @router.post("/request-verification")
 async def request_verification(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):

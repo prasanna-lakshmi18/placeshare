@@ -12,18 +12,19 @@ async def send_email(to_email: str, subject: str, body_text: str, body_html: str
     Sends an email using SMTP. Falls back to logging if SMTP is not configured.
     """
     if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-        logger.warning("SMTP credentials not found. Logging email instead of sending.")
-        logger.info(f"========== MOCK EMAIL SENT ==========")
-        logger.info(f"TO: {to_email}")
-        logger.info(f"SUBJECT: {subject}")
-        logger.info(f"BODY:\n{body_text}")
-        logger.info(f"=====================================")
+        logger.warning("SMTP credentials not configured. Logging email instead of sending.")
+        logger.info("========== MOCK EMAIL SENT ==========")
+        logger.info("TO: %s", to_email)
+        logger.info("SUBJECT: %s", subject)
+        logger.info("BODY:\n%s", body_text)
+        logger.info("=====================================")
         return
 
     try:
+        from_addr = settings.MAIL_FROM or settings.SMTP_USER
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
-        message["From"] = settings.MAIL_FROM
+        message["From"] = from_addr
         message["To"] = to_email
 
         # Create text and HTML versions of your message
@@ -34,15 +35,20 @@ async def send_email(to_email: str, subject: str, body_text: str, body_html: str
             part2 = MIMEText(body_html, "html")
             message.attach(part2)
 
-        # Create secure connection with server and send email
-        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-            server.starttls()
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            server.sendmail(settings.MAIL_FROM, to_email, message.as_string())
+        # Connect via SSL if port 465, otherwise STARTTLS
+        if settings.SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as server:
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                server.sendmail(from_addr, to_email, message.as_string())
+        else:
+            with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as server:
+                server.starttls()
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                server.sendmail(from_addr, to_email, message.as_string())
         
-        logger.info(f"Email sent successfully to {to_email}")
+        logger.info("Email '%s' sent successfully to %s", subject, to_email)
     except Exception as e:
-        logger.error(f"Failed to send email to {to_email}: {e}")
+        logger.error("Failed to send email to %s via SMTP: %s", to_email, e)
 
 async def send_verification_email(to_email: str, token: str):
     subject = "Verify your PlaceShare account"

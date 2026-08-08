@@ -5,7 +5,7 @@ import { ExperienceCard } from '../experience/ExperienceCard';
 import { ProfileCommentCard } from './ProfileCommentCard';
 import { ExperienceCardSkeleton } from '../ui/SkeletonLoader';
 import { User, Mail, Calendar, ArrowLeft, PenTool, MessageSquare, Heart, CheckCircle2 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { safeFormatDistanceToNow } from '../../utils/date';
 
 type TabType = 'posts' | 'comments' | 'likes';
 
@@ -69,7 +69,7 @@ export function UserProfile() {
 
   const joinDate = user.created_at ? (() => {
     try {
-      return `Joined ${formatDistanceToNow(new Date(user.created_at))} ago`;
+      return `Joined ${safeFormatDistanceToNow(user.created_at)} ago`;
     } catch {
       return 'Joined recently';
     }

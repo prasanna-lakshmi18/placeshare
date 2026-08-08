@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToggleLike, useDeleteExperience } from '../../hooks/useExperiences';
 import { CommentThread } from '../comments/CommentThread';
 import { cn } from '../ui/ThemeToggle';
+import { getTimeAgo } from '../../utils/date';
 
 interface ExperienceCardProps {
   experience: Experience;
@@ -146,19 +147,4 @@ export function ExperienceCard({ experience }: ExperienceCardProps) {
       )}
     </article>
   );
-}
-
-function getTimeAgo(dateStr: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diff = now - then;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  return `${months}mo ago`;
 }

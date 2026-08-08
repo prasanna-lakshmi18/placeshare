@@ -1,5 +1,5 @@
 import { MessageSquare, ArrowRight } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { safeFormatDistanceToNow } from '../../utils/date';
 import type { UserComment } from '../../types';
 
 interface ProfileCommentCardProps {
@@ -12,7 +12,7 @@ export function ProfileCommentCard({ comment }: ProfileCommentCardProps) {
       <div className="flex items-center gap-2 mb-3 text-sm text-gray-500 dark:text-gray-400">
         <MessageSquare size={16} className="text-brand-500" />
         <span>
-          Commented {formatDistanceToNow(new Date(comment.created_at))} ago on
+          Commented {safeFormatDistanceToNow(comment.created_at)} ago on
         </span>
         <span className="font-medium text-gray-900 dark:text-gray-200">
           {comment.experience_company} - {comment.experience_role}

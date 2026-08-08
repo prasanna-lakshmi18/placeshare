@@ -6,8 +6,8 @@ import { CommentForm } from './CommentForm';
 import { useAuth } from '../../context/AuthContext';
 import { useCreateComment, useUpdateComment, useDeleteComment } from '../../hooks/useComments';
 import { cn } from '../ui/ThemeToggle';
-
 import { Link } from 'react-router-dom';
+import { getCommentTimeAgo } from '../../utils/date';
 
 interface CommentItemProps {
   comment: Comment;
@@ -168,17 +168,4 @@ export function CommentItem({ comment, experienceId, depth = 0 }: CommentItemPro
       </div>
     </div>
   );
-}
-
-function getCommentTimeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'now';
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d`;
-  const months = Math.floor(days / 30);
-  return `${months}mo`;
 }

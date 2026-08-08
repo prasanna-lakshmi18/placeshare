@@ -1,6 +1,6 @@
 import re
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from datetime import datetime, timezone
+from pydantic import BaseModel, EmailStr, Field, field_validator, field_serializer
 
 
 def validate_password_strength(password: str) -> str:
@@ -52,6 +52,12 @@ class UserResponse(BaseModel):
     access_token: str | None = None
 
     model_config = {"from_attributes": True}
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, dt: datetime) -> str:
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.isoformat()
 
 
 class TokenData(BaseModel):

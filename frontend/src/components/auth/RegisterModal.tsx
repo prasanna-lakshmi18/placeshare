@@ -41,6 +41,14 @@ export function RegisterModal({ onClose, onSwitchToLogin }: RegisterModalProps) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!username.match(/^[a-zA-Z0-9_-]+$/)) {
+      setError('Username can only contain letters, numbers, underscores, and hyphens.');
+      return;
+    }
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters long.');
+      return;
+    }
     if (!isPasswordValid) {
       setError('Please satisfy all password security requirements.');
       return;
@@ -52,7 +60,16 @@ export function RegisterModal({ onClose, onSwitchToLogin }: RegisterModalProps) 
       onClose();
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Registration failed');
+      if (err.response?.status === 422) {
+        const detail = err.response?.data?.detail;
+        if (Array.isArray(detail)) {
+          setError(`Invalid input: ${detail[0]?.msg}`);
+        } else {
+          setError('Please check your inputs and try again.');
+        }
+      } else {
+        setError(err.response?.data?.detail || 'Registration failed');
+      }
     } finally {
       setLoading(false);
     }

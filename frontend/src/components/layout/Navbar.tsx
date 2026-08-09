@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { GraduationCap, LogIn, LogOut, Plus, UserCircle, ShieldAlert } from 'lucide-react';
 import api from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -11,6 +11,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onCreateClick, onLoginClick }: NavbarProps) {
+  const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
@@ -26,6 +27,11 @@ export function Navbar({ onCreateClick, onLoginClick }: NavbarProps) {
     } finally {
       setResending(false);
     }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
   };
 
   return (
@@ -67,7 +73,7 @@ export function Navbar({ onCreateClick, onLoginClick }: NavbarProps) {
                     )}
                   </Link>
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-full transition-colors duration-300"
                     title="Sign out"
                   >

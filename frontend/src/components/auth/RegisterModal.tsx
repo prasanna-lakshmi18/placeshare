@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, User, Mail, Lock, Loader2, Check, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -8,6 +9,7 @@ interface RegisterModalProps {
 }
 
 export function RegisterModal({ onClose, onSwitchToLogin }: RegisterModalProps) {
+  const navigate = useNavigate();
   const { register } = useAuth();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -48,6 +50,7 @@ export function RegisterModal({ onClose, onSwitchToLogin }: RegisterModalProps) 
     try {
       await register({ username, email, password });
       onClose();
+      navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Registration failed');
     } finally {

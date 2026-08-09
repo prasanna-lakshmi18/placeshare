@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { X, Mail, Lock, Loader2, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -9,6 +9,7 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ onClose, onSwitchToRegister }: LoginModalProps) {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,6 +25,7 @@ export function LoginModal({ onClose, onSwitchToRegister }: LoginModalProps) {
     try {
       await login({ email, password });
       onClose();
+      navigate('/');
     } catch (err: any) {
       const status = err.response?.status;
       const detail = err.response?.data?.detail || 'Login failed';
